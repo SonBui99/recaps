@@ -1,0 +1,74 @@
+@import "@/assets/css/variable.scss";
+
+.container {
+  background-image: url("../../assets/img/bg.png");
+  margin-top: 180px;
+  .textWrapper {
+    padding: 0 200px;
+    margin-bottom: 60px;
+    .title {
+      margin-bottom: 40px;
+      text-align: center;
+      font-family: Pacifico;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 64px;
+      line-height: 112px;
+      color: $primary;
+    }
+    .description {
+      display: flex;
+      justify-content: center;
+      font-family: Montserrat;
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 150%;
+      display: flex;
+      align-items: center;
+      color: $primary;
+      margin-top: 5px;
+    }
+  }
+  .groupBtn {
+    text-align: center;
+    .btn {
+      font-family: "Inter";
+      font-style: normal;
+      font-weight: 500;
+      font-size: 18px;
+      line-height: 28px;
+    }
+    .btnExplore {
+      margin-right: 20px;
+      background-color: $primaryDiff;
+      padding: 15px 40px;
+    }
+  }
+  .groupAction {
+    display: flex;
+    justify-content: center;
+    margin-top: 120px;
+    .itemAction {
+      display: flex;
+      .contentAction {
+        margin: 0 30px;
+        .titleAction {
+          max-width: 300px;
+          font-family: Montserrat;
+          font-weight: 400;
+          font-size: px-to-rem(24);
+          line-height: 150%;
+          color: $primary;
+        }
+        .descriptionAction {
+          max-width: 250px;
+          font-family: "Montserrat";
+          font-weight: 400;
+          font-size: px-to-rem(16);
+          line-height: 150%;
+          color: $grey;
+        }
+      }
+    }
+  }
+}

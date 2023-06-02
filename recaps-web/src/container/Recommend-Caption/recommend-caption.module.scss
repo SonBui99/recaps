@@ -1,0 +1,67 @@
+@import "src/assets/css/variable";
+
+.headerWrapper {
+  position: relative;
+  width: 100%;
+  max-height: 270px;
+  .imgBg {
+    width: 100%;
+    max-height: 300px;
+  }
+}
+
+.bgDescription {
+  position: absolute;
+  bottom: 50px;
+  left: 250px;
+  font-family: "Pacifico";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 84px;
+  color: $primary;
+  -webkit-text-: 8px #fff;
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.itemMenu {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.captions {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 150%;
+  padding: 17px 30px;
+  background-color: $primary;
+  border-radius: 20px;
+  color: $white;
+  text-decoration: none;
+  margin: 0 30px 0 160px;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.favourite {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 150%;
+  padding: 15px 20px;
+  color: $primary;
+  text-decoration: none;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.divied {
+  border-bottom: 5px solid #d5b6ff;
+}

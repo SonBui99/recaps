@@ -1,0 +1,14 @@
+@import 'src/assets/css/variable';
+
+$card-padding: 10px;
+
+.app-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background: $white;
+  padding: $card-padding;
+  border-radius: $card-border-radius;
+}

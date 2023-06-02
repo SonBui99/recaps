@@ -1,0 +1,79 @@
+@import 'src/assets/css/variable';
+
+$input-placeholder-opacity: 0.4;
+
+.input {
+  background: $white;
+  border: solid 1px $white;
+  border-radius: $input-border-radius;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: $p_font_size;
+
+  &.normal {
+    background: $white;
+  }
+
+  &.standard {
+    background-color: $input-bg;
+  }
+
+  &.error {
+    border: 1px solid red;
+  }
+
+  &.medium {
+    height: $medium;
+  }
+
+  &.large {
+    height: $large;
+  }
+
+  &.small {
+    height: $small;
+  }
+
+  @include media-breakpoint-down(lg) {
+    font-size: px-to-rem(16);
+  }
+
+  &:hover,
+  &:active,
+  &:focus {
+    outline: none;
+  }
+
+  input {
+    display: inline-flex;
+    border: none;
+    background: transparent;
+    color: $grey;
+    width: 100%;
+    &:hover,
+    &:active,
+    &:focus {
+      outline: none;
+    }
+    &::placeholder {
+      color: #8A8F99;
+      opacity: #8A8F99;
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 29px;
+    }
+  }
+
+  .renderPrefix {
+    margin-right: 10px;
+    display: inline-flex;
+  }
+  .renderSuffix {
+    margin-left: 10px;
+    display: inline-flex;
+  }
+}
