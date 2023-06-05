@@ -1,0 +1,60 @@
+@import "@/assets/css/variable.scss";
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30px;
+  width: 450px;
+}
+.danger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.title {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 28px;
+  text-align: center;
+  color: #101828;
+  margin: 20px 0 10px 0;
+}
+
+.description {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 26px;
+  text-align: center;
+  color: #667085;
+}
+
+.btn {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 32px;
+}
+
+.btnCancel {
+  width: 170px;
+  height: 44px;
+  background: #ffffff;
+  border: 1px solid #d0d5dd !important;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05) !important;
+  border-radius: 8px !important;
+  color: #344054 !important;
+}
+.btbDelete {
+  min-width: 170px;
+  height: 44px;
+  background: #d92d20 !important;
+  border: 1px solid #d92d20 !important;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05) !important;
+  border-radius: 8px !important;
+}

@@ -1,0 +1,62 @@
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/breakpoints';
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+
+$header-height: 88px;
+$header-height-collapse: 66px;
+$primary: #6941C6;
+$primary_hover: #967ad7;
+$primaryDiff: #7F56D9;
+$red: #ee5c5e;
+$red_hover: #ee6e6c;
+$black: #1b2028;
+$green: #4ce489;
+$grey: #93989F;
+$little-grey: #e5e6e9;
+$light-grey: #f3f3f5;
+$lighter-grey: #dddee1;
+$lightest-grey: #828d9b;
+$light-black: #2f3642;
+$medium-grey: #c8cacd;
+$white: #fff;
+$light: #e8ebef;
+$input-bg: #f5f7fa;
+$primary_bold: #1977f3;
+$warning: #ef9f72;
+$danger: #ee5c5e;
+$light-green: #72d299;
+$border-light: #e0e5ec;
+$pacific-blue: #2f3642;
+$grey-bg: #e8eaec;
+$background-light-grey: #c8cacd;
+$card-border-radius: 10px;
+$text-footer-grey: rgba(130, 141, 155, 1);
+$disabled: #c8cacd;
+$text-black: #2f3642;
+
+$input-placeholder: #6e7785;
+$input-border-radius: 6px;
+$select-border-radius: 6px;
+
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1220px,
+) !default;
+
+$h1_font_size: 3.75rem;
+$h2_font_size: 2.875rem;
+$h3_font_size: 1.875rem;
+$h4_font_size: 1.375rem;
+$p_font_size: 1.375rem;
+
+@function px-to-rem($px) {
+  @return ($px/16) + rem;
+}
+
+$large: 60px;
+$medium: 50px;
+$small: 40px;

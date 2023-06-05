@@ -1,0 +1,59 @@
+@import 'src/assets/css/variable';
+
+.headerWrapper {
+  background-color: $white;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 200px;
+  box-shadow: 0px 4px 29px rgba(143, 113, 212, 0.2);
+  .groupBtn {
+    display: flex;
+    align-items: center;
+    .btn {
+      font-family: "Montserrat";
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 18px;
+    }
+    .btnLogin {
+      margin-right: 20px;
+    }
+    .btnFeature {
+      margin-right: 20px;
+      font-family: "Montserrat";
+      font-style: normal;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 20px;
+      color: #6941c6;
+    }
+  }
+  .notifications {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .itemNoti {
+      margin: 0 15px;
+    }
+    .name {
+      font-family: "Montserrat";
+      font-style: normal;
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 18px;
+      color: $primary;
+    }
+    .avatar {
+      border-radius: 50%;
+      border: 1px solid #000;
+    }
+    .btnLogout{
+      padding: 10px;
+      margin-left: 20px;
+    }
+  }
+}

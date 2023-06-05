@@ -1,0 +1,29 @@
+@import "@/assets/css/variable.scss";
+
+.card {
+  background: #ffffff;
+  box-shadow: 0px 4px 17px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  position: absolute;
+  right: 10px;
+  top: 60px;
+  z-index: 10;
+}
+
+.text {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  color: #000000;
+  margin-left: 10px;
+}
+
+.btn {
+  display: flex;
+  justify-content: flex-start;
+  &:first-child {
+    margin-bottom: 5px;
+  }
+}

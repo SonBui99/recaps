@@ -5,6 +5,8 @@ from sqlalchemy.orm import relationship, sessionmaker
 from backend.db import ma
 
 engine = create_engine("mariadb+mariadbconnector://root:123456789@127.0.0.1:3307/restapidb")
+# engine = create_engine("mariadb+mariadbconnector://root:123456789@127.0.0.1:3307/restapidb")
+
 # Tạo một session để thao tác với database
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -66,7 +68,7 @@ class Tag(Base):
     name = Column(String(255), nullable=False)
 
     # Quan hệ nhiều-nhiều với bảng Caption
-    captions = relationship('Caption', secondary='caption_tag')
+    captions = relationship('Caption', secondary='caption_tag', overlaps="tags")
 
 # Định nghĩa bảng Favourite
 class Favourite(Base):

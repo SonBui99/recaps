@@ -1,0 +1,98 @@
+@import "@/assets/css/variable.scss";
+
+.button {
+  font-size: $p_font_size;
+  padding: 10px 40px;
+  border: none;
+  // height: 55px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease-in-out;
+
+  &.button_loading {
+    padding: 0 10px !important;
+  }
+
+  &.medium {
+    height: $medium;
+  }
+
+  &.large {
+    height: $large;
+  }
+
+  &.small {
+    height: $small;
+  }
+
+  &.primary {
+    background: $primary;
+    border-radius: 6px;
+    color: #fff;
+
+    &:hover,
+    &:focus {
+      background: lighten($primary, 10%);
+      cursor: pointer;
+    }
+
+    &:active {
+      background: darken($primary, 10%);
+    }
+
+    &:disabled {
+      background: $disabled;
+    }
+  }
+  &.outline {
+    color: $primary;
+    background: transparent;
+    border-radius: 6px;
+    border: solid 1.5px $primary;
+    box-sizing: border-box;
+    &:hover,
+    &:focus {
+      cursor: pointer;
+    }
+  }
+
+  &.transparent {
+    color: $grey;
+    background: transparent;
+    border-radius: 6px;
+    padding: 0 5px;
+    margin: 0 -5px;
+    &:hover,
+    &:focus {
+      background: rgba(208, 213, 221, 0.35);
+      cursor: pointer;
+    }
+
+    &:active {
+      background: darken(rgba($light-grey, 0.5), 10%);
+    }
+
+    &:disabled {
+      background: $disabled;
+    }
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes rotate {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}

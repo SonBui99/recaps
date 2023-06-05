@@ -9,11 +9,9 @@ import fasttext
 from sklearn.metrics.pairwise import cosine_similarity
 from googletrans import Translator
 # import requests
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, joinedload
 import datetime
-
-from flask_jwt_extended import get_jwt_identity
 
 import fasttext
 import datetime
@@ -26,6 +24,8 @@ ft_md = fasttext.load_model('statics/model/cc.vi.300.bin')
 
 # Tạo đối tượng session
 engine = create_engine("mariadb+mariadbconnector://root:123456789@127.0.0.1:3307/restapidb")
+# engine = create_engine("mariadb+mariadbconnector://root:123456789@127.0.0.1:3307/restapidb")
+
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -52,11 +52,11 @@ def add_image_service():
     
 def get_all_captions_admin_service():
     from ..model import Caption
-    all_captions = session.query(Caption).filter(Caption.author_id == 1).all()
+    all_captions = session.query(Caption).all()
     tmp = []
     for caption in all_captions:
         tags = caption.tags
-        tmp.append({'content':caption.content, 'author_id':1, 'created_at':caption.created_at, 'emotion':caption.emotion, 'tag': [tag.name for tag in tags]})
+        tmp.append({'id':caption.id, 'content':caption.content, 'author_id':caption.author_id, 'created_at':caption.created_at, 'emotion':caption.emotion, 'tag': [tag.name for tag in tags]})
     return tmp
 
 def get_caption_favorite_service():
@@ -70,7 +70,7 @@ def get_caption_favorite_service():
     return tmp
 
 def add_caption_service():
-    from ..model import Caption, captions_schema, Tag
+    from ..model import Caption, Tag
     text = request.json["content"]
     emotion = request.json["emotion"]
     tags = request.json["tag"]
@@ -92,19 +92,39 @@ def add_caption_service():
         newCaption.tags = n_tag 
         session.add(newCaption)
         session.commit()
-    return {'content':text, 'author_id':1, 'created_at':datetime.datetime.now(), 'emotion':emotion, 'tag': tags}
+    return {'content':text, 'author_id':g.user.id, 'created_at':datetime.datetime.now(), 'emotion':emotion, 'tag': tags}
 
-def delete_caption_service(id):
-    from ..model import Caption, captions_schema
+def delete_caption_service():
+    from ..model import Caption, Favourite, caption_tag, Tag
     msg = None
-    caption = session.query(Caption).filter(Caption.id == id).first()
-    if caption.author_id != g.user.id:
+    caption_id = request.json['id']
+    # caption = session.query(Caption).filter_by(id == id).first()
+    # if caption.author_id != g.user.id:
+    #     msg = "This caption is not belong to you"
+    #     return msg
+    # else:
+    #     session.delete(caption)
+    #     session.commit()
+    caption_to_delete = session.query(Caption).filter(Caption.id == caption_id).one()
+    if caption_to_delete.author_id != g.user.id:
         msg = "This caption is not belong to you"
         return msg
-    else:
-        session.delete(caption)
-        session.commit()
-    return captions_schema.jsonify(caption)
+    # Xóa caption khỏi bảng favourites
+    favourites_to_delete = session.query(Favourite).filter(Favourite.caption_id == caption_id).all()
+    for favourite in favourites_to_delete:
+        session.delete(favourite)
+
+    # Xóa các bản ghi trong bảng trung gian caption_tag
+    tags_to_delete = session.query(Tag).join(caption_tag).filter(caption_tag.c.caption_id == caption_id).all()
+    for tag in tags_to_delete:
+        caption_to_delete.tags.remove(tag)
+
+    # Xóa caption
+    session.delete(caption_to_delete)
+
+    # Lưu các thay đổi vào cơ sở dữ liệu
+    session.commit()
+    return jsonify({'Message': "Done"}), 200
 
 def get_des_service():
     import os
@@ -173,13 +193,14 @@ def get_list_caption_no_login_service():
         vector_des = sentence_embedding(des, ft_md)
         captions = session.query(Caption).filter(Caption.author_id == 1).all()
         for caption in captions:
-            dict = {"content":[], "similarity":[]}
+            dict = {"content":[], "similarity":[], "tag": []}
             vector_cap = sentence_embedding(caption.content, ft_md)
             similarity = cosine_similarity([vector_des], [vector_cap])[0][0]
             similarity = round(similarity*100, 2)
             if 50 <= similarity <= 100:
                 dict["content"].append(caption.content)
                 dict["similarity"].append(similarity)
+                dict["tag"].append(caption.tags)
                 list_cap.append(dict)
         return cap_list_schema.jsonify(list_cap)
     except Exception as e:
@@ -203,7 +224,7 @@ def get_list_caption_login_service():
         des = generate_caption_img(filelink)
         list_cap = []
         vector_des = sentence_embedding(des, ft_md)
-        captions = session.query(Caption).all()
+        captions = session.query(Caption).filter(Caption.author_id == g.user.id).all()
         for caption in captions:
             dict = {"content":[], "similarity":[]}
             vector_cap = sentence_embedding(caption.content, ft_md)
@@ -225,6 +246,12 @@ def get_list_tag_service():
         output[caption.content] = [tag.name for tag in caption.tags]
     return jsonify(output)
 
+def get_all_tag_service():
+    from ..model import Tag, tags_schema
+    tags = session.query(Tag).all()
+    return tags_schema.jsonify(tags)
+
+
 def get_tag_by_id_service():
     from ..model import Tag, Caption
     id = request.json['id']
@@ -236,32 +263,35 @@ def get_tag_by_id_service():
         return msg
 
 def add_favorite_service():
-    from ..model import User, Caption
+    from ..model import User, Caption, Favourite
     id = request.json['id']
     user = session.query(User).filter_by(id=g.user.id).first()
     caption = session.query(Caption).filter_by(id=id).first()
     if caption:
         user.favourite_captions.append(caption)
-
         session.add(user)
         session.commit()
-
+        newFavourite = Favourite(
+            user_id=g.user.id,
+            caption_id=caption.id, 
+            status=True
+        )
+        session.add(newFavourite)
+        session.commit()
         return jsonify({"caption": caption.content, "user": user.username})
     else:
         return "This id is not exist"
 
 def remove_favorite_service():
-    from ..model import User, Caption
+    from ..model import User, Caption, user_favourite_caption
     id = request.json['id']
-    user = session.query(User).filter_by(id=g.user.id).first()
-    caption = session.query(Caption).filter_by(id=id).first()
+    # user = session.query(User).filter_by(id=g.user.id).first()
+    caption = session.query(user_favourite_caption).filter_by(caption_id=id).first()
     if caption:
-        user.favourite_captions.remove(caption)
-
-        session.add(user)
+        delete_statement = user_favourite_caption.delete().where(and_(user_favourite_caption.c.user_id == g.user.id, user_favourite_caption.c.caption_id == id))
+        session.connection().execute(delete_statement)
         session.commit()
-
-        return jsonify({"caption": caption.content, "user": user.username})
+        return jsonify({"Message":"Done"}), 200
     else:
         return "This id is not exist"
 
