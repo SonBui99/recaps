@@ -5,7 +5,7 @@ export default class Request {
 
   constructor() {
     this.api = axios.create({
-      // withCredentials: false,
+      // withCredentials: true,
       baseURL: "http://127.0.0.1:5000",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +28,7 @@ export default class Request {
     const request = this.api
       .get(url, apiConfig)
       .then((res) => {
-        return res.data?.data;
+        return res.data;
       })
       .catch((err) => console.log());
     return request;
@@ -47,9 +47,7 @@ export default class Request {
     const request = this.api
       .post(url, body, apiConfig)
       .then((res) => {
-        console.log(res);
-
-        return res.data?.data;
+        return res.data;
       })
       .catch((err) => console.log(err));
     return request;

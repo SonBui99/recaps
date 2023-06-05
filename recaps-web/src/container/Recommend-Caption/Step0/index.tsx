@@ -1,6 +1,6 @@
 import Card from "@/components/Cards";
 import { Grid } from "@mui/material";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import LineStepper from "../Stepper";
 import classes from "./step0.module.scss";
 import Button from "@/components/Button/Button";
@@ -9,7 +9,6 @@ import Image from "next/image";
 
 interface Props {
   image: any;
-  loading: boolean;
   path: any;
   imagePath: string;
   handleChange: (e: any) => void;
@@ -17,9 +16,9 @@ interface Props {
 }
 
 export default function Step0(props: Props) {
-  const { handleChange, handleUploaded, image, loading, path, imagePath } =
-    props;
+  const { handleChange, handleUploaded, image, path, imagePath } = props;
   const ref = useRef<any>(null);
+
   return (
     <>
       <div style={{ backgroundColor: "#FFFAFA", height: "100%" }}>
@@ -54,7 +53,14 @@ export default function Step0(props: Props) {
                       }}
                     >
                       {imagePath ? (
-                        <Image src={imagePath} alt="" fill />
+                        <Image
+                          src={
+                            imagePath ||
+                            `https://vapa.vn/wp-content/uploads/2022/12/anh-mau-dep-001.jpg`
+                          }
+                          alt=""
+                          fill
+                        />
                       ) : (
                         <>
                           <Image src={icDrop} alt="" fill />
@@ -74,7 +80,7 @@ export default function Step0(props: Props) {
                 <Button
                   buttonType="primary"
                   onClick={() => handleUploaded(image)}
-                  disabled={path === null || loading}
+                  disabled={path === null}
                   style={{ marginTop: 20 }}
                 >
                   Continue

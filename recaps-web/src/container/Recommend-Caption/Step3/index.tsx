@@ -9,24 +9,29 @@ import { Grid } from "@mui/material";
 import bg from "@/assets/img/test.svg";
 import { useRouter } from "next/router";
 import { checkExistLocalStorage } from "@/helper/ultilities";
+import cx from "classnames";
 
 interface Props {
   path: string;
+  listDes: Array<any>;
+  handleClickCompleted: () => void;
+  seletedDes: any;
+  handleChooseCaption: (item: any) => void;
 }
 
-export default function Step3({ path }: Props) {
-  const router = useRouter();
+export default function Step3({
+  listDes,
+  handleClickCompleted,
+  handleChooseCaption,
+  seletedDes,
+}: Props) {
   const [urlImage, setUrlImage] = useState("");
+  const [des, setDes] = useState(null);
+
   useEffect(() => {
     if (checkExistLocalStorage()) {
       setUrlImage(localStorage.getItem("urlImage") as string);
     }
-  }, []);
-  const handleClick = useCallback(() => {
-    if (router.pathname?.includes("account")) {
-      router.push("/account/recommend-caption/completed");
-    }
-    router.push("/recommend/completed");
   }, []);
 
   return (
@@ -42,107 +47,49 @@ export default function Step3({ path }: Props) {
               </div>
               <div className={classes.dived} />
               <div className={classes.listCaps}>
-                <div className={classes.item}>
-                  <div style={{ maxWidth: 500 }}>
-                    <div className={classes.itemCaps}>
-                      Người ta thường nói cười là phương thuốc tốt nhất để chữa
-                      lành mọi vết thương. Nhưng khi bạn cười không có lý do,
-                      lúc đó bạn cần thuốc.
-                    </div>
-                    <div className={classes.itemList}>
-                      <div style={{ display: "flex" }}>
-                        <div className={classes.itemTag}>Tình yêu</div>
-                        <div className={classes.itemTag}>Thả thính</div>
+                {listDes?.map((item, index) => (
+                  <div
+                    className={cx(classes.item, {
+                      [classes.selected]: seletedDes === index,
+                    })}
+                    onClick={() => handleChooseCaption(index)}
+                  >
+                    <div style={{ maxWidth: 500 }}>
+                      <div className={classes.itemCaps}>{item?.content[0]}</div>
+                      <div className={classes.itemList}>
+                        <div style={{ display: "flex" }}>
+                          <div className={classes.itemTag}>Tình yêu</div>
+                          <div className={classes.itemTag}>Thả thính</div>
+                        </div>
+                        {/* <div className={classes.dayItem}>3 days ago</div> */}
                       </div>
-                      <div className={classes.dayItem}>3 days ago</div>
+                    </div>
+                    <div className={classes.similarity}>
+                      {item?.similarity[0]}%
                     </div>
                   </div>
-                  <div className={classes.similarity}>83%</div>
-                </div>
-                <div className={classes.item}>
-                  <div style={{ maxWidth: 500 }}>
-                    <div className={classes.itemCaps}>
-                      Người ta thường nói cười là phương thuốc tốt nhất để chữa
-                      lành mọi vết thương. Nhưng khi bạn cười không có lý do,
-                      lúc đó bạn cần thuốc.
-                    </div>
-                    <div className={classes.itemList}>
-                      <div style={{ display: "flex" }}>
-                        <div className={classes.itemTag}>Tình yêu</div>
-                        <div className={classes.itemTag}>Thả thính</div>
-                      </div>
-                      <div className={classes.dayItem}>3 days ago</div>
-                    </div>
-                  </div>
-                  <div className={classes.similarity}>83%</div>
-                </div>
-                <div className={classes.item}>
-                  <div style={{ maxWidth: 500 }}>
-                    <div className={classes.itemCaps}>
-                      Người ta thường nói cười là phương thuốc tốt nhất để chữa
-                      lành mọi vết thương. Nhưng khi bạn cười không có lý do,
-                      lúc đó bạn cần thuốc.
-                    </div>
-                    <div className={classes.itemList}>
-                      <div style={{ display: "flex" }}>
-                        <div className={classes.itemTag}>Tình yêu</div>
-                        <div className={classes.itemTag}>Thả thính</div>
-                      </div>
-                      <div className={classes.dayItem}>3 days ago</div>
-                    </div>
-                  </div>
-                  <div className={classes.similarity}>83%</div>
-                </div>
-                <div className={classes.item}>
-                  <div style={{ maxWidth: 500 }}>
-                    <div className={classes.itemCaps}>
-                      Người ta thường nói cười là phương thuốc tốt nhất để chữa
-                      lành mọi vết thương. Nhưng khi bạn cười không có lý do,
-                      lúc đó bạn cần thuốc.
-                    </div>
-                    <div className={classes.itemList}>
-                      <div style={{ display: "flex" }}>
-                        <div className={classes.itemTag}>Tình yêu</div>
-                        <div className={classes.itemTag}>Thả thính</div>
-                      </div>
-                      <div className={classes.dayItem}>3 days ago</div>
-                    </div>
-                  </div>
-                  <div className={classes.similarity}>83%</div>
-                </div>
-                <div className={classes.item}>
-                  <div style={{ maxWidth: 500 }}>
-                    <div className={classes.itemCaps}>
-                      Người ta thường nói cười là phương thuốc tốt nhất để chữa
-                      lành mọi vết thương. Nhưng khi bạn cười không có lý do,
-                      lúc đó bạn cần thuốc.
-                    </div>
-                    <div className={classes.itemList}>
-                      <div style={{ display: "flex" }}>
-                        <div className={classes.itemTag}>Tình yêu</div>
-                        <div className={classes.itemTag}>Thả thính</div>
-                      </div>
-                      <div className={classes.dayItem}>3 days ago</div>
-                    </div>
-                  </div>
-                  <div className={classes.similarity}>83%</div>
-                </div>
+                ))}
               </div>
             </Card>
           </Grid>
           <Grid item xs={5}>
             <div style={{ position: "relative", height: 340 }}>
-              <Image
-                src={urlImage}
-                alt=""
-                className={classes.img}
-                fill
-                priority
-              />
+              {urlImage && (
+                <Image
+                  src={
+                    urlImage ||
+                    `https://vapa.vn/wp-content/uploads/2022/12/anh-mau-dep-001.jpg`
+                  }
+                  alt=""
+                  className={classes.img}
+                  fill
+                  priority
+                />
+              )}
               <Button
                 buttonType="primary"
                 className={classes.btnContinue}
-                onClick={handleClick}
+                onClick={handleClickCompleted}
               >
                 Continue
               </Button>

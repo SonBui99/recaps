@@ -11,14 +11,18 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { doLogin } from "@/apis/authenticate.api";
 import { useRouter } from "next/router";
+import authorizedRequest from "@/config/authorizedRequest";
+import { toastError, toastSuccess } from "@/helper/toastMessage";
 
 export default function Login() {
   const schema = yup.object().shape({
-    userName: yup
-      .string()
-      .required("Name is required")
-      .max(25, "Username must be between 3 - 25 characters")
-      .min(3, "Username must be between 3 - 25 characters"),
+    // email: yup
+    //   .string()
+    //   .required("Email is required")
+    //   .matches(
+    //     /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/,
+    //     "Email is not vaild"
+    //   ),
     passWord: yup
       .string()
       .required("Password is required")
@@ -34,14 +38,16 @@ export default function Login() {
   const router = useRouter();
   const onSubmit = useCallback(async (values: any) => {
     await doLogin({
-      userName: values.userName,
+      email: values.email,
       password: values.passWord,
     })
       .then((res) => {
-        localStorage.setItem("user", JSON.stringify(res));
+        toastSuccess("Login Successfully");
+        // authorizedRequest.setToken(res.access_token);
+        localStorage.setItem("user", res.data.access_token);
         router.push("/account");
       })
-      .catch((err) => alert(err));
+      .catch((err) => toastError(err));
   }, []);
 
   return (
@@ -57,18 +63,16 @@ export default function Login() {
               </div>
             </div>
             <div>
-              <div>User Name</div>
+              <div>Email</div>
               <Input
                 className={
-                  !errors.userName ? classes.inputBox : classes.errorInput
+                  !errors.email ? classes.inputBox : classes.errorInput
                 }
-                placeholder="User Name"
-                {...register("userName")}
+                placeholder="Email"
+                {...register("email")}
               />
-              {errors.userName && (
-                <p className={classes.error}>
-                  {errors?.userName?.message as any}
-                </p>
+              {errors.email && (
+                <p className={classes.error}>{errors?.email?.message as any}</p>
               )}
             </div>
             <div>

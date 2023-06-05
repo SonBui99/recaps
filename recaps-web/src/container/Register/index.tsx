@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUp } from "@/apis/authenticate.api";
 import { useRouter } from "next/router";
+import { toastError, toastSuccess } from "@/helper/toastMessage";
 
 export default function Register() {
   const { push } = useRouter();
@@ -50,16 +51,16 @@ export default function Register() {
 
   const onSubmit = useCallback(async (values: any) => {
     const body = {
-      userName: values?.name,
+      username: values?.name,
       email: values?.email,
       password: values?.password,
     };
     await signUp(body)
       .then(() => {
-        alert("Sign Up successfully");
+        toastSuccess("Register successfully");
         push("/login");
       })
-      .catch((err) => alert(err));
+      .catch((err) => toastError(err));
   }, []);
 
   return (

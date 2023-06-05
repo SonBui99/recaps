@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import classes from "./tag.module.scss";
 import icX from "@/assets/img/icX.svg";
 import icSearch from "@/assets/img/icSearch.svg";
-import { getListTag } from "@/apis/listTag.api";
+import { getAllTag, getListTag } from "@/apis/listTag.api";
 import { useRouter } from "next/router";
 import cx from "classnames";
 
@@ -16,22 +16,25 @@ export default function Tags() {
   const [tagSelected, setTagSelected] = useState(null);
   useEffect(() => {
     const getAllTags = async () => {
-      const data = await getListTag();
-      setListTags(data);
+      const data = await getAllTag();
+      return data;
     };
-    getAllTags().catch((err) => console.log());
+    getAllTags()
+      .then((res) => setListTags(res))
+      .catch((err) => console.log(err));
+    // getAllTag().then()
   }, [router]);
 
   const handleSelectTag = useCallback(
     (item: any) => {
-      if (tagSelected === item?.idTag) {
+      if (tagSelected === item?.name) {
         setTagSelected(null);
         router.replace({ query: {} });
       } else {
-        setTagSelected(item?.idTag);
+        setTagSelected(item?.name);
         router.replace({
           query: {
-            tag: item?.idTag,
+            tag: item?.name,
           },
         });
       }
@@ -58,7 +61,7 @@ export default function Tags() {
                 <Button
                   buttonType="outline"
                   className={cx(classes.btnTags, {
-                    [classes.active]: tagSelected === item?.idTag,
+                    [classes.active]: tagSelected === item?.name,
                   })}
                   onClick={() => handleSelectTag(item)}
                 >

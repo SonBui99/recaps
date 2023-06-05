@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import classes from "./recommend-caption.module.scss";
 import Image from "next/image";
 import bg from "@/assets/img/test.svg";
@@ -9,18 +9,26 @@ import Step3 from "./Step3";
 import { useRouter } from "next/router";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import storage from "@/config/firebase";
-import { getDescription } from "@/apis/captions.api";
-import axios from "axios";
+import {
+  getDes,
+  getEmotion,
+  getListCaptionForLogin,
+  getListCaptionForNoLogin,
+} from "@/apis/recommend.api";
+import { toastError } from "@/helper/toastMessage";
+import CompleteStep from "./CompleteStep";
 
 export default function RecommendCaption() {
   const router = useRouter();
   const [path, setPath] = useState(null);
   const [urlImage, setUrlImage] = useState("");
-  const [test, setTest] = useState(null);
-
   const [image, setImage] = useState<any>(null);
   const [imagePath, setImagePath] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [description, setDesription] = useState("");
+  const [listDes, setListDes] = useState([]);
+  const [emotion, setEmotion] = useState(null);
+  const [seletedDes, setSelectedDes] = useState<any>(0);
+  const [clearState, setClearState] = useState<boolean>(false);
   const renderHeader = useMemo(() => {
     return (
       <div style={{ backgroundColor: "#d5b6ff" }}>
@@ -38,46 +46,108 @@ export default function RecommendCaption() {
         setImagePath(URL?.createObjectURL(item[0]));
         setPath(item[0]?.name);
         setImage(item[0]);
+        localStorage.setItem("urlImage", URL?.createObjectURL(item[0]));
       }
     },
     [path, image]
   );
-  console.log(image);
+
+  // useEffect(() => {
+  //   if (clearState) {
+  //     // setImage(null);
+  //     // setPath(null);
+  //     setImagePath(null);
+  //     setSelectedDes(0);
+  //     setClearState(false);
+  //   }
+  // }, [router, clearState]);
 
   const handleUploaded = useCallback(async (item: any) => {
     const formData = new FormData();
     formData.append("file", item);
+    await getEmotion(formData)
+      .then((res: any) => {
+        setEmotion(res.data.emo);
+        router.replace({
+          query: {
+            step: "2",
+          },
+        });
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
-    const config = {
-      headers: {
-        "content-type": "multipart/form-data",
-      },
-    };
+  const handleClick = useCallback(async (item: any) => {
+    const formData = new FormData();
+    formData.append("file", item);
+    await getDes(formData).then((res) => {
+      setDesription(res?.data?.des);
+      router.replace({
+        query: {
+          step: "3",
+        },
+      });
+    });
+  }, []);
 
-    const response = await axios
-      .post("http://127.0.0.1:5000/caption/get_des", formData, config)
-      .then((res) => console.log("res", res))
-      .catch((err) => console.log("err", err));
-    return response;
-    // const formData = new FormData();
-    // formData.append("file", item[0]);
-    // await getDescription(formData)
-    //   .then((res) => console.log("rs", res))
-    //   .catch((err) => console.log('err',err));
-    // const imgRef = ref(storage, `/items/${path}`);
-    // uploadBytes(imgRef, item).then((snapshot) => {
-    //   setLoading(true);
-    //   getDownloadURL(snapshot.ref).then((url: string) => {
-    //     localStorage.setItem("urlImage", url);
-    //     setUrlImage(url);
-    //     setLoading(false);
-    //     router.replace({
-    //       query: {
-    //         step: "2",
-    //       },
-    //     });
-    //   });
+  const handleClickInStep3 = useCallback(async (item: any) => {
+    const formData = new FormData();
+    formData.append("file", item);
+    if (router.pathname.includes("account")) {
+      await getListCaptionForLogin(formData)
+        .then((res) => {
+          setListDes(res.data);
+          router.replace({
+            query: {
+              step: "4",
+            },
+          });
+        })
+        .catch((err) => toastError(err));
+      return;
+    }
+    await getListCaptionForNoLogin(formData)
+      .then((res) => {
+        setListDes(res.data);
+        router.replace({
+          query: {
+            step: "4",
+          },
+        });
+      })
+      .catch((err) => toastError(err));
+    return;
+    // await getListCaptionForNoLogin(formData)
+    //   .then((res) => console.log("res", res))
+    //   .catch((err) => toastError(err));
+    // router.replace({
+    //   query: {
+    //     step: "4",
+    //   },
     // });
+  }, []);
+
+  const handleClickCompleted = useCallback(() => {
+    router.replace({
+      query: {
+        step: "completed",
+      },
+    });
+  }, []);
+
+  const handleChooseCaption = useCallback(
+    (item: any) => {
+      setSelectedDes(item);
+    },
+    [seletedDes]
+  );
+  const handleBack = useCallback(() => {
+    if (router.pathname.includes("account")) {
+      // setClearState(true);
+      return router.push(`/account/`);
+    }
+    // setClearState(true);
+    return router.push(`/`);
   }, []);
 
   const renderStep = useMemo(() => {
@@ -89,19 +159,50 @@ export default function RecommendCaption() {
             handleChange={handleChange}
             handleUploaded={handleUploaded}
             image={image}
-            loading={loading}
             path={path}
           />
         );
 
       case "2":
-        return <Step1 path={urlImage} />;
+        return (
+          <Step1
+            path={imagePath}
+            emotion={emotion}
+            handleClick={handleClick}
+            image={image}
+          />
+        );
 
       case "3":
-        return <Step2 path={urlImage} />;
+        return (
+          <Step2
+            path={imagePath}
+            description={description}
+            handleClick={handleClickInStep3}
+            image={image}
+          />
+        );
 
       case "4":
-        return <Step3 path={urlImage} />;
+        return (
+          <Step3
+            path={imagePath}
+            listDes={listDes}
+            handleClickCompleted={handleClickCompleted}
+            handleChooseCaption={handleChooseCaption}
+            seletedDes={seletedDes}
+          />
+        );
+
+      case "completed":
+        return (
+          <CompleteStep
+            seletedDes={seletedDes}
+            path={imagePath}
+            handleBack={handleBack}
+            listDes={listDes}
+          />
+        );
 
       default:
         return (
@@ -110,12 +211,20 @@ export default function RecommendCaption() {
             handleChange={handleChange}
             handleUploaded={handleUploaded}
             image={image}
-            loading={loading}
             path={path}
           />
         );
     }
-  }, [router, path, image, loading, handleChange, handleUploaded, urlImage]);
+  }, [
+    router,
+    path,
+    image,
+    handleChange,
+    handleUploaded,
+    urlImage,
+    seletedDes,
+    listDes,
+  ]);
 
   return (
     <>

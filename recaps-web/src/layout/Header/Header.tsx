@@ -11,17 +11,17 @@ import icNoti from "@/assets/img/icNoti.svg";
 import { UserDetail } from "@/model/authenticate.model";
 import { checkExistLocalStorage } from "@/helper/ultilities";
 import { doLogout } from "@/apis/authenticate.api";
+import jwtDecode from "jwt-decode";
 
 export default function Header() {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserDetail>();
+  const [userInfo, setUserInfo] = useState<any>();
   useEffect(() => {
     if (router.pathname.includes("account")) {
       const getItem: any =
         checkExistLocalStorage() && localStorage.getItem("user");
-      if (!!getItem) {
-        setUserInfo(JSON.parse(getItem));
-      }
+      const decodeToken = jwtDecode(getItem);
+      setUserInfo(decodeToken);
     }
   }, [router]);
   const handleLogout = useCallback(async () => {
@@ -74,7 +74,7 @@ export default function Header() {
               />
             </div>
             <div className={cx(classes.itemNoti, classes.name)}>
-              {userInfo?.user?.userName || "User Name"}
+              {userInfo?.sub?.email || "User Name"}
             </div>
             <div className={cx(classes.groupBtn, "ml-3")}>
               <Link href={"/login"}>

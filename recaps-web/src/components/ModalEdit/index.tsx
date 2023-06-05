@@ -21,15 +21,20 @@ export default function ModalEdit({
   handleUpdate,
   listTag,
 }: Props) {
-  const [emotion, setEmotion] = useState<boolean>(true);
+  const [emotion, setEmotion] = useState<string>("True");
   const [content, setContent] = useState<string>("");
-  const [tag, setTag] = useState<number>(0);
+  const [tag, setTag] = useState<any>(null);
+  const [defaultTag, setDefaultTag] = useState(null);
 
   useEffect(() => {
     if (item) {
       setContent(item?.content);
-      setEmotion(item?.trang_thai);
-      setTag(item?.id_tag);
+      setEmotion(item?.emotion);
+      setTag(item?.tag);
+      const tagInCaptions = tagOptions.filter((i: any) =>
+        item?.tag?.map((it: any) => it === i.name)
+      );
+      setDefaultTag(tagInCaptions);
     }
   }, [item]);
 
@@ -48,7 +53,8 @@ export default function ModalEdit({
   );
   const handleChangeTags = useCallback(
     (e: any) => {
-      setTag(e?.value);
+      const seletecdTagName = e?.map((item: any) => item?.label);
+      setTag(seletecdTagName);
     },
     [tag]
   );
@@ -57,7 +63,7 @@ export default function ModalEdit({
     if (listTag) {
       return listTag?.map((item: any) => {
         return {
-          value: item?.idTag,
+          value: item?.id,
           label: item?.name,
         };
       });
@@ -66,19 +72,25 @@ export default function ModalEdit({
 
   const defaultValueTag = useMemo(() => {
     if (item && tagOptions) {
-      return tagOptions.find((item: any) => item.value === tag);
+      return tagOptions.filter((item: any) =>
+        tag?.map((it: any) => it === item.name)
+      );
     }
   }, [tagOptions, item, tag]);
 
   const handleChangeEmotion = useCallback(
     (e: any) => {
-      setEmotion(e);
+      if (e) {
+        return setEmotion("True");
+      }
+      return setEmotion("False");
     },
     [emotion]
   );
 
-  const renderModal = useMemo(() => {
-    return (
+  return (
+    <>
+      return (
       <Modal
         open={open}
         onClose={handleClose}
@@ -99,14 +111,13 @@ export default function ModalEdit({
           <div className={classes.item}>
             <div className={classes.titleItem}>Tags</div>
             <Select
-              // isMulti
-              name="colors"
+              isMulti
               options={tagOptions}
               className={classes.selectInput}
-              value={defaultValueTag}
-              // defaultValue={defaultValueTag}
+              defaultValue={defaultTag}
               styles={customStyle}
               onChange={(e) => handleChangeTags(e)}
+              isClearable
             />
           </div>
           <div className={classes.emotion}>
@@ -115,7 +126,7 @@ export default function ModalEdit({
               control={
                 <MaterialUISwitch
                   sx={{ ml: 5 }}
-                  defaultChecked={item?.trang_thai}
+                  defaultChecked={item?.emotion === "True" ? true : false}
                   onChange={(e) => handleChangeEmotion(e.target.checked)}
                 />
               }
@@ -128,9 +139,9 @@ export default function ModalEdit({
             className={classes.btnSave}
             onClick={() => {
               handleUpdate({ content, tag, emotion, item });
-              setTimeout(() => {
-                handleClose();
-              }, 1500);
+              // setTimeout(() => {
+              //   handleClose();
+              // }, 2000);
             }}
           >
             Save
@@ -144,8 +155,7 @@ export default function ModalEdit({
           </Button>
         </Card>
       </Modal>
-    );
-  }, [tag, defaultValueTag, item, content, emotion]);
-
-  return <>{renderModal}</>;
+      );
+    </>
+  );
 }

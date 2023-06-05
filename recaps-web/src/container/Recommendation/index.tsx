@@ -14,7 +14,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import { styled } from "@mui/material/styles";
 import { Switch, createTheme } from "@mui/material";
 import Link from "next/link";
-import { getListTag } from "@/apis/listTag.api";
+import { getAllTag, getListTag } from "@/apis/listTag.api";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -22,19 +22,22 @@ import { checkExistLocalStorage } from "@/helper/ultilities";
 import { addNewCaption } from "@/apis/captions.api";
 import { useRouter } from "next/router";
 import { toastError, toastSuccess } from "@/helper/toastMessage";
+import jwtDecode from "jwt-decode";
 
 interface InitStateTagSelected {
   value: number;
   label: string;
 }
 
+const options: any = [
+  { value: "chocolate", label: "Chocolate" },
+  { value: "strawberry", label: "Strawberry" },
+  { value: "vanilla", label: "Vanilla" },
+];
+
 export default function Recommendation() {
   const [listTags, setListTags] = useState([]);
-  const [listTagsSelected, setListTagsSelected] =
-    useState<InitStateTagSelected>({
-      value: 0,
-      label: "string",
-    });
+  const [selectedOption, setSelectedOption] = useState([]);
   const [emotion, setEmotion] = useState<boolean>(true);
   const schema = yup.object().shape({
     content: yup.string().required("Vui lòng nhập username"),
@@ -56,17 +59,17 @@ export default function Recommendation() {
   );
   useEffect(() => {
     const getAllTags = async () => {
-      const data = await getListTag();
+      const data = await getAllTag();
       setListTags(data);
     };
     getAllTags().catch((err) => console.log());
   }, []);
 
-  const tagOptions = useMemo(() => {
+  const tagOptions: any = useMemo(() => {
     if (listTags) {
       return listTags?.map((item: any) => {
         return {
-          value: item?.idTag,
+          value: item?.id,
           label: item?.name,
         };
       });
@@ -141,38 +144,39 @@ export default function Recommendation() {
   const idUser = useMemo(() => {
     const getUser: any =
       checkExistLocalStorage() && localStorage.getItem("user");
-    const user: any = JSON.parse(getUser);
-    return user?.user?.id;
+    if (!!getUser) {
+      const userInfo: any = jwtDecode(getUser);
+      return userInfo.sub.userid;
+    }
   }, []);
 
   const onSubmit = useCallback(
     async (values: any) => {
+      const tagSelected = selectedOption?.map((item: any) => item.label);
       const body: any = {
         content: values?.content?.trim(),
-        idUser: idUser,
-        trangThai: emotion,
-        idTag: listTagsSelected?.value,
+        // idUser: idUser,
+        emotion: emotion,
+        tag: tagSelected,
       };
       await addNewCaption(body)
         .then(() => {
           toastSuccess("Create Caption Successfully");
           setEmotion(true);
-          setListTagsSelected({
-            value: 0,
-            label: "string",
-          });
+          setSelectedOption([]);
         })
         .catch((err) => toastError(err));
     },
-    [idUser, listTagsSelected, emotion]
+    [idUser, selectedOption, emotion]
   );
 
   const handleChangeTags = useCallback(
     (values: any) => {
-      setListTagsSelected(values);
+      setSelectedOption(values);
     },
-    [listTagsSelected]
+    [selectedOption]
   );
+
   return (
     <>
       {renderHeader}
@@ -222,12 +226,13 @@ export default function Recommendation() {
                 </div>
               </div>
               <Select
-                // isMulti
-                name="colors"
+                value={selectedOption}
                 options={tagOptions}
                 className={classes.selectInput}
                 styles={customStyle}
                 onChange={handleChangeTags}
+                isSearchable
+                isMulti
               />
               <Button
                 type="submit"

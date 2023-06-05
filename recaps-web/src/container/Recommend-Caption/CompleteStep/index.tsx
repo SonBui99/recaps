@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import bgLogin from "@/assets/img/bg-login.png";
 import classes from "./complete-step.module.scss";
 import Image from "next/image";
@@ -9,21 +9,27 @@ import icClock from "@/assets/img/icClock.svg";
 import bgImg from "@/assets/img/img.svg";
 import icSmile from "@/assets/img/icSmile.svg";
 import Button from "@/components/Button/Button";
+import { useRouter } from "next/router";
 
-export default function CompleteStep() {
-  const renderHeader = useMemo(() => {
-    return (
-      <div style={{ backgroundColor: "#d5b6ff" }}>
-        <div className={classes.headerWrapper}>
-          <Image src={bg} alt="" className={classes.imgBg} />
-          <div className={classes.bgDescription}>Caption recommendation</div>
-        </div>
-      </div>
-    );
-  }, []);
+interface Props {
+  seletedDes: any;
+  path: any;
+  handleBack: () => void;
+  listDes: any;
+}
+
+export default function CompleteStep(props: Props) {
+  const { seletedDes, path, handleBack, listDes } = props;
+  const router = useRouter();
+  const selectedDescription = useMemo(() => {
+    if (listDes && seletedDes) {
+      return listDes[seletedDes];
+    }
+  }, [listDes, seletedDes]);
+  console.log("listDes", listDes);
+
   return (
     <div>
-      {renderHeader}
       <div className={classes.container}>
         <Card className={classes.card}>
           <div className={classes.infoUser}>
@@ -36,10 +42,16 @@ export default function CompleteStep() {
             </div>
           </div>
           <div className={classes.desCaption}>
-            Người ta thường nói cười là phương thuốc tốt nhất để chữa lành mọi
-            vết thương. Nhưng khi bạn cười không có lý do, lúc đó bạn cần thuốc.
+            {selectedDescription?.content[0]}
           </div>
-          <Image src={bgImg} alt="" className={classes.image} />
+
+          <Image
+            src={path}
+            alt=""
+            className={classes.image}
+            width={200}
+            height={300}
+          />
           <div style={{ display: "flex", alignItems: "center", marginTop: 20 }}>
             <Image src={icSmile} alt="" width={32} height={32} />
             <div style={{ display: "flex", marginLeft: 20 }}>
@@ -47,7 +59,11 @@ export default function CompleteStep() {
               <div className={classes.tag}>Tinh yeu</div>
             </div>
           </div>
-          <Button buttonType="primary" className={classes.btnDone}>
+          <Button
+            buttonType="primary"
+            className={classes.btnDone}
+            onClick={handleBack}
+          >
             Done
           </Button>
         </Card>

@@ -12,9 +12,17 @@ import { checkExistLocalStorage } from "@/helper/ultilities";
 
 interface Props {
   path: string;
+  description: string;
+  image: any;
+  handleClick: (image: any) => void;
 }
 
-export default function Step2({ path }: Props) {
+export default function Step2({
+  path,
+  description,
+  image,
+  handleClick,
+}: Props) {
   const router = useRouter();
   const [urlImage, setUrlImage] = useState("");
   useEffect(() => {
@@ -22,13 +30,7 @@ export default function Step2({ path }: Props) {
       setUrlImage(localStorage.getItem("urlImage") as string);
     }
   }, []);
-  const handleClick = useCallback(() => {
-    router.replace({
-      query: {
-        step: "4",
-      },
-    });
-  }, []);
+
   return (
     <>
       <Card className={classes.card}>
@@ -36,15 +38,18 @@ export default function Step2({ path }: Props) {
         <Grid container spacing={4} style={{ marginTop: 20 }}>
           <Grid item xs={7}>
             <Card className={classes.emotionCard}>
-              <div className={classes.title}>
-                The girl is playing very happily
-              </div>
+              <div className={classes.title}>{description}</div>
             </Card>
           </Grid>
           <Grid item xs={5}>
             <div style={{ position: "relative", height: 340 }}>
               <Image
-                src={path?.length > 0 ? path : urlImage}
+                src={
+                  path?.length > 0
+                    ? path
+                    : urlImage ||
+                      `https://vapa.vn/wp-content/uploads/2022/12/anh-mau-dep-001.jpg`
+                }
                 alt=""
                 className={classes.img}
                 fill
@@ -52,7 +57,7 @@ export default function Step2({ path }: Props) {
               <Button
                 buttonType="primary"
                 className={classes.btnContinue}
-                onClick={handleClick}
+                onClick={() => handleClick(image)}
               >
                 Continue
               </Button>

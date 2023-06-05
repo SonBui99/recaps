@@ -9,13 +9,17 @@ import Button from "@/components/Button/Button";
 import { Grid } from "@mui/material";
 import { useRouter } from "next/router";
 import { checkExistLocalStorage } from "@/helper/ultilities";
+import { getDes } from "@/apis/recommend.api";
 
 interface Props {
   path: any;
+  emotion: any;
+  handleClick: (image: any) => void;
+  image: any;
 }
 
 export default function Step1(props: Props) {
-  const { path } = props;
+  const { path, emotion, handleClick, image } = props;
   const router = useRouter();
   const [urlImage, setUrlImage] = useState("");
   useEffect(() => {
@@ -24,51 +28,50 @@ export default function Step1(props: Props) {
     }
   }, []);
 
-  const handleClick = useCallback(() => {
-    router.replace({
-      query: {
-        step: "3",
-      },
-    });
-  }, []);
+  const renderEmotion = useMemo(() => {
+    if (emotion) {
+      return <Image src={icSmile} alt="" />;
+    }
+    return <Image src={icSad} alt="" />;
+  }, [emotion]);
 
   const renderUI = useMemo(() => {
-    if (urlImage) {
-      return (
-        <>
-          <Card className={classes.card}>
-            <LineStepper />
-            <Grid container spacing={4} style={{ marginTop: 20 }}>
-              <Grid item xs={7}>
-                <Card className={classes.emotionCard}>
-                  <Image src={icSmile} alt="" />
-                  <Image src={icSad} alt="" />
-                </Card>
-              </Grid>
-              <Grid item xs={5}>
-                <div style={{ position: "relative", height: "340px" }}>
-                  <Image
-                    src={path?.length > 0 ? path : urlImage}
-                    alt=""
-                    className={classes.img}
-                    priority
-                    fill
-                  />
-                  <Button
-                    buttonType="primary"
-                    className={classes.btnContinue}
-                    onClick={handleClick}
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </Grid>
+    return (
+      <>
+        <Card className={classes.card}>
+          <LineStepper />
+          <Grid container spacing={4} style={{ marginTop: 20 }}>
+            <Grid item xs={7}>
+              <Card className={classes.emotionCard}>{renderEmotion}</Card>
             </Grid>
-          </Card>
-        </>
-      );
-    }
-  }, [path, urlImage, router]);
+            <Grid item xs={5}>
+              <div style={{ position: "relative", height: "340px" }}>
+                <Image
+                  src={
+                    path?.length > 0
+                      ? path
+                      : urlImage ||
+                        `https://vapa.vn/wp-content/uploads/2022/12/anh-mau-dep-001.jpg`
+                  }
+                  alt=""
+                  className={classes.img}
+                  priority
+                  fill
+                />
+                <Button
+                  buttonType="primary"
+                  className={classes.btnContinue}
+                  onClick={() => handleClick(image)}
+                >
+                  Continue
+                </Button>
+              </div>
+            </Grid>
+          </Grid>
+        </Card>
+      </>
+    );
+  }, [path, urlImage, router, emotion]);
 
   return <>{renderUI}</>;
 }
