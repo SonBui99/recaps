@@ -9,34 +9,48 @@ import { getAllTag, getListTag } from "@/apis/listTag.api";
 import { useRouter } from "next/router";
 import cx from "classnames";
 
-export default function Tags() {
+interface Props {
+  listTags: Array<any>;
+}
+
+export default function Tags(props: Props) {
+  const { listTags } = props;
   const router = useRouter();
-  const [listTags, setListTags] = useState<any>([]);
+  // const [listTags, setListTags] = useState<any>([]);
   const [search, setSearch] = useState("");
   const [tagSelected, setTagSelected] = useState(null);
-  useEffect(() => {
-    const getAllTags = async () => {
-      const data = await getAllTag();
-      return data;
-    };
-    getAllTags()
-      .then((res) => setListTags(res))
-      .catch((err) => console.log(err));
-    // getAllTag().then()
-  }, [router]);
+  // useEffect(() => {
+  //   const getAllTags = async () => {
+  //     const data = await getAllTag();
+  //     return data;
+  //   };
+  //   window.setTimeout(() => {
+  //     getAllTags()
+  //       .then((res) => setListTags(res.data))
+  //       .catch((err) => console.log(err));
+  //   }, 500);
+  //   // getAllTag().then()
+  // }, [router]);
 
   const handleSelectTag = useCallback(
     (item: any) => {
-      if (tagSelected === item?.name) {
+      if (tagSelected === item?.tag_name) {
         setTagSelected(null);
         router.replace({ query: {} });
       } else {
-        setTagSelected(item?.name);
-        router.replace({
-          query: {
-            tag: item?.name,
+        setTagSelected(item?.tag_name);
+        router.replace(
+          {
+            query: {
+              tag: item?.tag_name,
+            },
           },
-        });
+          undefined,
+          {
+            shallow: true,
+            scroll: false,
+          }
+        );
       }
     },
     [tagSelected, router]
@@ -45,7 +59,7 @@ export default function Tags() {
   const listTagsSearch = useMemo(() => {
     if (listTags?.length) {
       return listTags?.filter((item: any) =>
-        item?.name?.toLowerCase().includes(search.toLowerCase())
+        item?.tag_name?.toLowerCase().includes(search.toLowerCase())
       );
     }
   }, [listTags, search]);
@@ -57,15 +71,15 @@ export default function Tags() {
         <div className={classes.listItemTags}>
           {listTagsSearch?.map((item: any) => {
             return (
-              <div className={classes.itemTags} key={item?.idTag}>
+              <div className={classes.itemTags} key={item?.tag_id}>
                 <Button
                   buttonType="outline"
                   className={cx(classes.btnTags, {
-                    [classes.active]: tagSelected === item?.name,
+                    [classes.active]: tagSelected === item?.tag_name,
                   })}
                   onClick={() => handleSelectTag(item)}
                 >
-                  {item?.name}
+                  {item?.tag_name}
                 </Button>
                 {/* <Image src={icX} alt="" style={{ margin: "0 10px" }} />
                 <div className={classes.numberTags}>{item?.data}</div> */}

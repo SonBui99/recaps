@@ -1,35 +1,52 @@
-from flask import Blueprint, g, request, render_template_string
+from flask import Blueprint, make_response, render_template_string, jsonify, request
 from sqlalchemy.orm import sessionmaker
 import requests
-from flask_jwt_extended import(
-    get_jwt,
-    create_access_token,
-    set_access_cookies,
-    jwt_required,
-    verify_jwt_in_request
-)
+
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+# @bp.before_app_request
+
 @bp.before_app_request
-@jwt_required(optional=True)
-def load_logged_in_user():
+def before_request():
+    headers = { 'Access-Control-Allow-Origin': '*',
+               'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+               'Access-Control-Allow-Headers': 'Content-Type' }
+    if request.method == 'OPTIONS':
+        return jsonify(headers), 200
+
+def check_user_login(request):
     from .model import User
     from .model import engine
-    from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
     
     Session = sessionmaker(bind=engine)
     Session.configure(bind=engine)
 
     session = Session()
-    excluded_endpoints =["user.login_user", "user.register_user"]
-    if request.endpoint in excluded_endpoints:
-        print("Do Login or Register")
-    else:
-        current_identity = get_jwt_identity()
-        if current_identity is None:
-            g.user = None
+    try:
+        auth_header = request.headers.get('Authorization')
+        print(auth_header)
+        if auth_header:
+            auth_token = auth_header
         else:
-            g.user = session.query(User).filter_by(email=current_identity['email']).one()
+            auth_token = ''
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            # print(resp)
+            if not isinstance(resp, str):
+                user = session.query(User).filter_by(id=resp).first()
+                # print(user.id)
+                return user.id
+            return None
+        else:
+            return None
+    except IndexError:
+        responseObject = {
+            'status': 'fail',
+            'message': 'Bearer token malformed.'
+        }
+        print(responseObject)
+        return None
+    
 
 
 @bp.route("/")

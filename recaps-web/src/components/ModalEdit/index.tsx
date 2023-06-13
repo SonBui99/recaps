@@ -6,6 +6,7 @@ import Select from "react-select";
 import { FormControlLabel } from "@mui/material";
 import { MaterialUISwitch } from "@/container/Recommendation";
 import Button from "../Button/Button";
+import { getAllTag } from "@/apis/listTag.api";
 interface Props {
   open: boolean;
   handleClose: () => void;
@@ -21,20 +22,29 @@ export default function ModalEdit({
   handleUpdate,
   listTag,
 }: Props) {
-  const [emotion, setEmotion] = useState<string>("True");
+  const [emotion, setEmotion] = useState<boolean>(true);
   const [content, setContent] = useState<string>("");
   const [tag, setTag] = useState<any>(null);
-  const [defaultTag, setDefaultTag] = useState(null);
+  const [dataTag, setDataTag] = useState<any>(null);
+  const [selectedTag, setSelectedTag] = useState<any>(null);
+
+  useEffect(() => {
+    const getAllTags = async () => {
+      const data = await getAllTag();
+      return data;
+    };
+    window.setTimeout(() => {
+      getAllTags()
+        .then((res) => setDataTag(res.data))
+        .catch((err) => console.log(err));
+    }, 300);
+  }, []);
 
   useEffect(() => {
     if (item) {
       setContent(item?.content);
       setEmotion(item?.emotion);
       setTag(item?.tag);
-      const tagInCaptions = tagOptions.filter((i: any) =>
-        item?.tag?.map((it: any) => it === i.name)
-      );
-      setDefaultTag(tagInCaptions);
     }
   }, [item]);
 
@@ -55,42 +65,43 @@ export default function ModalEdit({
     (e: any) => {
       const seletecdTagName = e?.map((item: any) => item?.label);
       setTag(seletecdTagName);
+      setSelectedTag(e);
     },
     [tag]
   );
 
   const tagOptions = useMemo(() => {
-    if (listTag) {
-      return listTag?.map((item: any) => {
+    if (dataTag) {
+      return dataTag?.map((item: any) => {
         return {
-          value: item?.id,
-          label: item?.name,
+          value: item?.tag_id,
+          label: item?.tag_name,
         };
       });
     }
-  }, [listTag]);
+  }, [dataTag]);
 
   const defaultValueTag = useMemo(() => {
-    if (item && tagOptions) {
-      return tagOptions.filter((item: any) =>
-        tag?.map((it: any) => it === item.name)
-      );
+    if (tagOptions) {
+      // return tagOptions
+      //   .filter((item: any) => tag?.includes(item?.label))
+      //   ?.map((i) => i.value);
+      return tagOptions.filter((item: any) => tag?.includes(item?.label));
     }
-  }, [tagOptions, item, tag]);
+  }, [tagOptions, tag]);
 
   const handleChangeEmotion = useCallback(
     (e: any) => {
       if (e) {
-        return setEmotion("True");
+        return setEmotion(true);
       }
-      return setEmotion("False");
+      return setEmotion(false);
     },
     [emotion]
   );
 
   return (
     <>
-      return (
       <Modal
         open={open}
         onClose={handleClose}
@@ -114,10 +125,9 @@ export default function ModalEdit({
               isMulti
               options={tagOptions}
               className={classes.selectInput}
-              defaultValue={defaultTag}
+              value={selectedTag || defaultValueTag}
               styles={customStyle}
               onChange={(e) => handleChangeTags(e)}
-              isClearable
             />
           </div>
           <div className={classes.emotion}>
@@ -126,7 +136,7 @@ export default function ModalEdit({
               control={
                 <MaterialUISwitch
                   sx={{ ml: 5 }}
-                  defaultChecked={item?.emotion === "True" ? true : false}
+                  defaultChecked={item?.emotion === "1" ? true : false}
                   onChange={(e) => handleChangeEmotion(e.target.checked)}
                 />
               }
@@ -138,10 +148,10 @@ export default function ModalEdit({
             buttonType="primary"
             className={classes.btnSave}
             onClick={() => {
-              handleUpdate({ content, tag, emotion, item });
-              // setTimeout(() => {
-              //   handleClose();
-              // }, 2000);
+              handleUpdate({ content, selectedTag, emotion, item });
+              setTimeout(() => {
+                handleClose();
+              }, 1500);
             }}
           >
             Save
@@ -155,7 +165,6 @@ export default function ModalEdit({
           </Button>
         </Card>
       </Modal>
-      );
     </>
   );
 }

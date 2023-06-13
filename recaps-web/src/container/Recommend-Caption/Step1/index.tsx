@@ -45,14 +45,9 @@ export default function Step1(props: Props) {
               <Card className={classes.emotionCard}>{renderEmotion}</Card>
             </Grid>
             <Grid item xs={5}>
-              <div style={{ position: "relative", height: "340px" }}>
+              <div style={{ position: "relative", height: "500px" }}>
                 <Image
-                  src={
-                    path?.length > 0
-                      ? path
-                      : urlImage ||
-                        `https://vapa.vn/wp-content/uploads/2022/12/anh-mau-dep-001.jpg`
-                  }
+                  src={path?.length > 0 ? path : urlImage || ``}
                   alt=""
                   className={classes.img}
                   priority

@@ -34,10 +34,12 @@
 }
 
 .emotionCard {
+  // position: relative;
   padding: 50px 40px;
   align-items: center;
   background-color: #fceded;
   border-radius: 28px;
+  min-height: 500px;
 }
 
 .img {

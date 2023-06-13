@@ -47,7 +47,7 @@ export default function ModalDelete({
               handleDelete(item);
               setTimeout(() => {
                 handleClose();
-              }, 1500);
+              }, 800);
             }}
           >
             Delete

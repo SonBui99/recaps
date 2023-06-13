@@ -56,7 +56,7 @@ export default function Step0(props: Props) {
                         <Image
                           src={
                             imagePath ||
-                            `https://vapa.vn/wp-content/uploads/2022/12/anh-mau-dep-001.jpg`
+                            ``
                           }
                           alt=""
                           fill
@@ -73,7 +73,7 @@ export default function Step0(props: Props) {
                       type="file"
                       id="upload"
                       onChange={(e) => handleChange(e?.target?.files as any)}
-                      // hidden
+                      hidden
                     />
                   </div>
                 </label>

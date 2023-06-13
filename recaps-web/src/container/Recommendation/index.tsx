@@ -6,7 +6,7 @@ import Card from "@/components/Cards";
 import Button from "@/components/Button/Button";
 import Select from "react-select";
 import cx from "classnames";
-import logo from "@/assets/img/logo.png";
+import logo from "@/assets/img/logo.jpg";
 import icClock from "@/assets/img/icClock.svg";
 import icSmile from "@/assets/img/icSmile.svg";
 import icSad from "@/assets/img/icSad.svg";
@@ -19,10 +19,11 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { checkExistLocalStorage } from "@/helper/ultilities";
-import { addNewCaption } from "@/apis/captions.api";
+import { addNewCaption, getListCaptions } from "@/apis/captions.api";
 import { useRouter } from "next/router";
 import { toastError, toastSuccess } from "@/helper/toastMessage";
 import jwtDecode from "jwt-decode";
+import moment from "moment";
 
 interface InitStateTagSelected {
   value: number;
@@ -37,6 +38,7 @@ const options: any = [
 
 export default function Recommendation() {
   const [listTags, setListTags] = useState([]);
+  const [listCaption, setListCaption] = useState([]);
   const [selectedOption, setSelectedOption] = useState([]);
   const [emotion, setEmotion] = useState<boolean>(true);
   const schema = yup.object().shape({
@@ -59,60 +61,85 @@ export default function Recommendation() {
   );
   useEffect(() => {
     const getAllTags = async () => {
-      const data = await getAllTag();
-      setListTags(data);
+      await getListCaptions()
+        .then(async (res) => {
+          setListCaption(res.data?.reverse());
+          await getAllTag()
+            .then((data) => {
+              setListTags(data.data);
+            })
+            .catch(() => {
+              //nothing
+            });
+        })
+        .catch(() => {
+          //do nothing
+        });
     };
-    getAllTags().catch((err) => console.log());
+    getAllTags();
   }, []);
 
   const tagOptions: any = useMemo(() => {
     if (listTags) {
       return listTags?.map((item: any) => {
         return {
-          value: item?.id,
-          label: item?.name,
+          value: item?.tag_id,
+          label: item?.tag_name,
         };
       });
     }
   }, [listTags]);
 
-  const renderListCaption = useMemo(() => {
-    return (
-      <>
-        <div>
-          <div className={classes.itemInfo}>
-            <Image src={logo} alt="" className={classes.avatar} />
-            <div>
-              <div className={classes.nameUser}>YunFeng</div>
-              <div className={classes.timeItem}>
-                Last 1 day ago <Image src={icClock} alt="" />
-              </div>
-            </div>
-          </div>
-          <div className={classes.descriptionItem}>
-            Hãy gọi anh khi em thấy nhớ, anh sẽ ngồi nghe không quan trọng là
-            mấy giờ
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div className={classes.listTag}>
-              <div className={classes.tagItem}>Tình Yêu</div>
-            </div>
+  const listDataSlice = useMemo(() => {
+    if (listCaption) {
+      return listCaption.slice(0, 10);
+    }
+  }, [listCaption]);
 
-            <div className={classes.emoItem}>
-              <Image
-                src={icSmile}
-                alt=""
-                width={32}
-                height={32}
-                style={{ marginRight: 10, marginTop: 10 }}
-              />
-            </div>
-          </div>
-          <div className={classes.divided} />
-        </div>
-      </>
-    );
-  }, []);
+  const renderListCaption = useMemo(() => {
+    if (listDataSlice) {
+      const userName =
+        checkExistLocalStorage() && localStorage.getItem("userName");
+      return (
+        <>
+          {listDataSlice?.map((item: any) => (
+            <>
+              <div className={classes.itemInfo} key={item.id}>
+                <Image src={logo} alt="" className={classes.avatar} />
+                <div>
+                  <div className={classes.nameUser}>{userName}</div>
+                  <div className={classes.timeItem}>
+                    {moment(item?.created_at).startOf("day").fromNow()}{" "}
+                    <Image src={icClock} alt="" />
+                  </div>
+                </div>
+              </div>
+              <div className={classes.descriptionItem}>{item?.content}</div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div className={classes.listTag}>
+                  {item?.tag?.map((it: any, index: number) => (
+                    <div className={classes.tagItem} key={index}>
+                      {it}
+                    </div>
+                  ))}
+                </div>
+                <div className={classes.emoItem}>
+                  <Image
+                    src={item?.emotion === "1" ? icSmile : icSad}
+                    alt=""
+                    width={32}
+                    height={32}
+                    style={{ marginRight: 10, marginTop: 10 }}
+                  />
+                </div>
+              </div>
+              <div className={classes.divided} />
+            </>
+          ))}
+        </>
+      );
+    }
+  }, [listDataSlice]);
 
   const renderHeader = useMemo(() => {
     return (

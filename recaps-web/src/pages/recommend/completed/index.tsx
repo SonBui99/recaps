@@ -10,7 +10,7 @@ const CompletePage: FC & ComponentStatic = () => {
       <Head>
         <title>Recommend Captions</title>
       </Head>
-      <CompleteStep />
+      {/* <CompleteStep /> */}
     </>
   );
 };

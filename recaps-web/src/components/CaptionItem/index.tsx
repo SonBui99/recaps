@@ -16,11 +16,12 @@ import icStar from "@/assets/img/icStar.svg";
 import icUnStar from "@/assets/img/icUnStar.svg";
 import icAction from "@/assets/img/icAction.svg";
 import Action from "@/container/HomeUser/Action";
+import Router from "next/router";
 
 interface Props {
   item: any;
   handleDelete: (item: any) => void;
-  listTags: any;
+  listTags: Array<any>;
   handleUpdate: (item: any) => void;
   handleChangeFavourite: () => void;
 }
@@ -66,11 +67,11 @@ export default function ItemCaption(props: Props) {
     setShowDelete(true);
   }, [showDelete]);
 
-  const findTag = useMemo(() => {
-    if (item && listTags) {
-      return listTags.find((i: any) => i.idTag === item.id_tag);
-    }
-  }, [item, listTags]);
+  // const findTag = useMemo(() => {
+  //   if (item && listTags) {
+  //     return listTags?.find((i: any) => i.idTag === item.id_tag);
+  //   }
+  // }, [item, listTags]);
 
   const renderCaptions = useMemo(() => {
     return (
@@ -78,7 +79,7 @@ export default function ItemCaption(props: Props) {
         <div className={classes.itemCaption}>
           <div className={classes.itemWrapper}>
             <Image
-              src={item?.favourite ? icStar : icUnStar}
+              src={Router.pathname.includes("favourite") ? icStar : icUnStar}
               alt=""
               onClick={handleChangeFavourite}
             />
@@ -100,7 +101,7 @@ export default function ItemCaption(props: Props) {
           </div>
           <div className={classes.action}>
             <Image
-              src={item?.emotion === "True" ? icSmile : icSad}
+              src={item?.emotion === "1" ? icSmile : icSad}
               alt=""
               width={24}
               height={24}
@@ -133,6 +134,6 @@ export default function ItemCaption(props: Props) {
         )}
       </div>
     );
-  }, [item, show, showDelete, showEdit, findTag]);
+  }, [item, show, showDelete, showEdit]);
   return <>{renderCaptions}</>;
 }

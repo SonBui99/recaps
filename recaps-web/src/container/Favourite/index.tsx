@@ -11,10 +11,19 @@ import icStar from "@/assets/img/icStar.svg";
 import icUnStar from "@/assets/img/icUnStar.svg";
 import cx from "classnames";
 import Tags from "../HomeUser/Tag";
-import { deleteCaption, getListCaptionFavourite } from "@/apis/captions.api";
+import {
+  addCaptionFavorite,
+  deleteCaption,
+  getListCaptionFavourite,
+  getListCaptions,
+  removeCaptionFavorite,
+  updateContentCaption,
+  updateEmotionCaption,
+  updateTagCaption,
+} from "@/apis/captions.api";
 import { checkExistLocalStorage } from "@/helper/ultilities";
 import { useRouter } from "next/router";
-import { getListTag } from "@/apis/listTag.api";
+import { getAllTag, getListTag } from "@/apis/listTag.api";
 import ItemCaption from "@/components/CaptionItem";
 import { toastError, toastSuccess } from "@/helper/toastMessage";
 import jwtDecode from "jwt-decode";
@@ -33,62 +42,58 @@ export default function Favourite() {
   }, []);
 
   const handleDelete = useCallback(async (item: any) => {
-    await deleteCaption(item?.id_caption)
-      .then((res) => toastSuccess("Deleted Successfully"))
+    await deleteCaption({
+      id: item?.id,
+    })
+      .then(() => toastSuccess("Deleted Successfully"))
       .catch((err) => toastError(err));
 
     await getListCaptionFavourite()
       .then((data: any) => {
-        const captionByIdUser = data.filter(
-          (item: any) => item.id_user === userInfo.userId
-        );
-        setListData(captionByIdUser.reverse());
-      })
-      .catch((err: any) => console.log(err));
-  }, []);
-
-  const handleUpdate = useCallback(async (item: any) => {
-    const payload = {
-      content: item?.content,
-      idCaption: item?.item.id_caption,
-      idUser: item?.item.id_user,
-      trangThai: item?.emotion,
-      idTag: item?.tag,
-      favourite: item?.item.favourite,
-    };
-
-    // await updateCaption(payload)
-    //   .then((res) => toastSuccess("Update Successfully"))
-    //   .catch((err) => console.log(err));
-    await getListCaptionFavourite()
-      .then((data: any) => {
-        const captionByIdUser = data.filter(
-          (item: any) => item.id_user === userInfo.userId
-        );
-        setListData(captionByIdUser.reverse());
+        setListData(data.data?.reverse());
       })
       .catch((err: any) => console.log(err));
   }, []);
 
   const handleChangeFavourite = useCallback(async (item: any) => {
-    const payload = {
-      content: item?.content,
-      idCaption: item?.id_caption,
-      idUser: item?.id_user,
-      trangThai: item?.trang_thai,
-      idTag: item?.id_tag,
-      favourite: !item?.favourite,
+    const body = {
+      id: item?.id,
     };
-    // await updateCaption(payload)
-    //   .then(() => toastSuccess("Change favourite success"))
-    //   .catch((err) => toastError(err));
+    await removeCaptionFavorite(body)
+      .then(() => toastSuccess("Change favourite success"))
+      .catch((err) => toastError(err));
 
     await getListCaptionFavourite()
       .then((data: any) => {
-        const captionByIdUser = data.filter(
-          (item: any) => item.id_user === userInfo.userId && item.favourite
-        );
-        setListData(captionByIdUser.reverse());
+        setListData(data.data?.reverse());
+      })
+      .catch((err: any) => console.log(err));
+  }, []);
+
+  const handleUpdate = useCallback(async (item: any) => {
+    await updateContentCaption({
+      id: item.item.id,
+      content: item?.content,
+    })
+      .then((res) => toastSuccess("Update Successfully"))
+      .catch((err) => console.log(err));
+    await updateEmotionCaption({
+      id: item.item.id,
+      emotion: item?.emotion,
+    })
+      .then((res) => toastSuccess("Update Successfully"))
+      .catch((err) => console.log(err));
+    if (item?.selectedTag) {
+      await updateTagCaption({
+        id: item.item.id,
+        tag_id: item?.selectedTag[0].value,
+      })
+        .then((res) => toastSuccess("Update Successfully"))
+        .catch((err) => console.log(err));
+    }
+    await getListCaptionFavourite()
+      .then((data: any) => {
+        setListData(data.data?.reverse());
       })
       .catch((err: any) => console.log(err));
   }, []);
@@ -97,23 +102,20 @@ export default function Favourite() {
     const fetchData = async () => {
       await getListCaptionFavourite()
         .then((data: any) => {
-          const captionByIdUser = data.filter(
-            (item: any) => item.id_user === userInfo.userId && item.favourite
-          );
-          setListData(captionByIdUser?.reverse());
+          setListData(data.data?.reverse());
         })
         .catch((err: any) => console.log(err));
 
-      const data = await getListTag();
-      setListTags(data);
+      const data = await getAllTag();
+      setListTags(data.data);
     };
     fetchData();
   }, []);
 
   useEffect(() => {
     if (!!query?.tag) {
-      const data = listData?.filter(
-        (item: any) => Number(item?.id_tag) === Number(query?.tag)
+      const data = listData?.filter((item: any) =>
+        item.tag.includes(String(query.tag))
       );
       setListDataSearch(data);
       return;
@@ -160,7 +162,7 @@ export default function Favourite() {
             padding: "0 160px 30px 160px",
           }}
         >
-          <Tags />
+          <Tags listTags={listTags} />
           <Card className={classes.cardCaption}>
             {listDataSearch?.map((item: any, index) => {
               return (

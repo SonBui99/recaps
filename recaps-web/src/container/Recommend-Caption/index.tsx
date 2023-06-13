@@ -17,6 +17,7 @@ import {
 } from "@/apis/recommend.api";
 import { toastError } from "@/helper/toastMessage";
 import CompleteStep from "./CompleteStep";
+import { getListCaptionFavourite } from "@/apis/captions.api";
 
 export default function RecommendCaption() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function RecommendCaption() {
   const [listDes, setListDes] = useState([]);
   const [emotion, setEmotion] = useState(null);
   const [seletedDes, setSelectedDes] = useState<any>(0);
-  const [clearState, setClearState] = useState<boolean>(false);
+  const [listCaptionFavourite, setListCaptionFavourite] = useState<any>([]);
   const renderHeader = useMemo(() => {
     return (
       <div style={{ backgroundColor: "#d5b6ff" }}>
@@ -42,7 +43,7 @@ export default function RecommendCaption() {
 
   const handleChange = useCallback(
     (item: any) => {
-      if (item) {
+      if (item.length) {
         setImagePath(URL?.createObjectURL(item[0]));
         setPath(item[0]?.name);
         setImage(item[0]);
@@ -52,15 +53,14 @@ export default function RecommendCaption() {
     [path, image]
   );
 
-  // useEffect(() => {
-  //   if (clearState) {
-  //     // setImage(null);
-  //     // setPath(null);
-  //     setImagePath(null);
-  //     setSelectedDes(0);
-  //     setClearState(false);
-  //   }
-  // }, [router, clearState]);
+  useEffect(() => {
+    const fetchData = async () => {
+      await getListCaptionFavourite().then((res) => {
+        setListCaptionFavourite(res?.data);
+      });
+    };
+    fetchData();
+  }, []);
 
   const handleUploaded = useCallback(async (item: any) => {
     const formData = new FormData();
@@ -96,7 +96,7 @@ export default function RecommendCaption() {
     if (router.pathname.includes("account")) {
       await getListCaptionForLogin(formData)
         .then((res) => {
-          setListDes(res.data);
+          setListDes(res?.data);
           router.replace({
             query: {
               step: "4",
@@ -137,16 +137,15 @@ export default function RecommendCaption() {
 
   const handleChooseCaption = useCallback(
     (item: any) => {
+      console.log("🚀 ~ file: index.tsx:238 ~ RecommendCaption ~ item:", item);
       setSelectedDes(item);
     },
     [seletedDes]
   );
   const handleBack = useCallback(() => {
     if (router.pathname.includes("account")) {
-      // setClearState(true);
       return router.push(`/account/`);
     }
-    // setClearState(true);
     return router.push(`/`);
   }, []);
 
@@ -191,6 +190,7 @@ export default function RecommendCaption() {
             handleClickCompleted={handleClickCompleted}
             handleChooseCaption={handleChooseCaption}
             seletedDes={seletedDes}
+            listCaptionFavourite={listCaptionFavourite}
           />
         );
 
@@ -201,6 +201,7 @@ export default function RecommendCaption() {
             path={imagePath}
             handleBack={handleBack}
             listDes={listDes}
+            emotion={emotion}
           />
         );
 

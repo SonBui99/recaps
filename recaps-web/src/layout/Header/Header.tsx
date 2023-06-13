@@ -1,6 +1,7 @@
 import Image from "next/image";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import logo from "@/assets/img/logo.png";
+import avatar from "@/assets/img/logo.jpg";
 import classes from "./header.module.scss";
 import Button from "@/components/Button/Button";
 import cx from "classnames";
@@ -15,19 +16,19 @@ import jwtDecode from "jwt-decode";
 
 export default function Header() {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<any>();
+  const [userInfo, setUserInfo] = useState<any>("");
   useEffect(() => {
     if (router.pathname.includes("account")) {
-      const getItem: any =
-        checkExistLocalStorage() && localStorage.getItem("user");
-      const decodeToken = jwtDecode(getItem);
-      setUserInfo(decodeToken);
+      const nameUser: any =
+        checkExistLocalStorage() && localStorage.getItem("userName");
+      setUserInfo(nameUser);
     }
   }, [router]);
   const handleLogout = useCallback(async () => {
     await doLogout()
       .then(() => {
         localStorage.removeItem("user");
+        localStorage.removeItem("userName");
         router.push("/login");
       })
       .catch(() => console.log());
@@ -66,7 +67,7 @@ export default function Header() {
             </div>
             <div className={classes.itemNoti}>
               <Image
-                src={logo}
+                src={avatar}
                 alt=""
                 width={30}
                 height={30}
@@ -74,7 +75,7 @@ export default function Header() {
               />
             </div>
             <div className={cx(classes.itemNoti, classes.name)}>
-              {userInfo?.sub?.email || "User Name"}
+              {userInfo || "User Name"}
             </div>
             <div className={cx(classes.groupBtn, "ml-3")}>
               <Link href={"/login"}>

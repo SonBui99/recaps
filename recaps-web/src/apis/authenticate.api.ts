@@ -10,13 +10,13 @@ export function doLogin(body: UserRequestBody) {
   // return unauthorizedRequest.post(`/user/login_user`, body);
   return axios.post(
     `http://127.0.0.1:5000/user/login_user`,
-    body
+    body,
     // {headers: {'content-type': 'application/json'}}
-    // headers: {
-    //   'Access-Control-Allow-Origin': '*',
-    //   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-    //   'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
-    // }
+    {headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+    }}
   );
 }
 

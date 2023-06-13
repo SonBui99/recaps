@@ -44,10 +44,13 @@ export default function Login() {
       .then((res) => {
         toastSuccess("Login Successfully");
         // authorizedRequest.setToken(res.access_token);
-        localStorage.setItem("user", res.data.access_token);
+        localStorage.setItem("user", res.data.auth_token);
+        localStorage.setItem("userName", res.data.user_name);
         router.push("/account");
       })
-      .catch((err) => toastError(err));
+      .catch((err) => {
+        toastError(err.response.data.message);
+      });
   }, []);
 
   return (
@@ -81,7 +84,7 @@ export default function Login() {
                 className={
                   !errors.passWord ? classes.inputBox : classes.errorInput
                 }
-                placeholder="PassWord"
+                placeholder="Password"
                 type="password"
                 {...register("passWord")}
               />
